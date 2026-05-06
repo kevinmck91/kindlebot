@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<title>Highlights Admin</title>
+<link rel="stylesheet"
+	href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script
+	src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+	rel="stylesheet"
+	integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+	crossorigin="anonymous">
+<script
+	src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+	integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+	crossorigin="anonymous"></script>
+
+<style type="text/css">
+
+.bulk-action:disabled {
+    opacity: 0.5;
+    background-color: #adb5bd !important;
+    border-color: #adb5bd !important;
+}
+a {
+    text-decoration: none;
+    color: inherit;
+}
+</style>	
+</head>
+
+<body>
+
+	<h1>Highlights Admin</h1>
+	
+	<br/>
+	<br/>
+	
+	<button id="" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#manualUploadModal">Manual Upload Highlight</button>
+	<button id="" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#fileUploadModal">Upload clipping.txt File</button>
+	<button id="" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#jsonImportModal">Import All from JSON</button>
+	<button onclick="window.location.href='/web/admin/exportJson'" type="button" class="btn btn-primary">Export All to JSON</button>
+	<button onclick="window.location.href='/web/admin'" type="button" class="btn btn-primary">Reload Page</button>
+	
+	<br/>
+	<br/>
+	
+	<button id="deselectAll" type="button" class="btn btn-primary">Clear Selection</button>
+	<button id="showAll" type="button" class="btn btn-primary">Show All</button>
+	<button id="hideAll" type="button" class="btn btn-primary">Hide All</button>
+	
+	<br/>
+	<br/>
+	
+	<div th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+	<table id="highlightsTable" class="display">
+		<thead>
+			<tr>
+				<th><input type="checkbox" id="selectAll"></th>
+				<th>ID</th>
+				<th>Excerpt</th>
+				<th>Title</th>
+				<th>Author</th>
+				<th>Source</th>
+				<th>Tags</th>
+				<th>Visibility</th>
+			</tr>
+		</thead>
+
+		<tbody>
+			<th:block th:each="h : ${highlights}">
+				<tr>
+					<td>
+						<input 
+							type="checkbox" 
+							name="selectedHighlights"
+							th:value="${h.timestampHash}" 
+							th:data-title="${h.title}"
+							th:data-author="${h.author}"
+							th:data-source="${h.source}"
+							th:data-excerpt="${h.excerpt}"
+							th:data-visibility="${h.visibility}"
+							th:attr="data-highlight-tags-string=${#strings.defaultString(h.highlightTagsString,'')}"/> 
+					</td>
+					<td th:text="${h.timestampHash}"></td>
+					<td>
+						<a 
+							id="openUpdateExcerptModal"
+							href="#" 
+							style="text-decoration: none; color: inherit;"
+							th:data-timestampHash="${h.timestampHash}"
+							th:data-title="${h.title}"
+							th:data-author="${h.author}" 
+							th:data-excerpt="${h.excerpt}"
+							th:data-visibility="${h.visibility}"
+							data-bs-toggle="modal" 
+							data-bs-target="#updateExcerptModal">
+							<span th:title="${h.excerpt}">&nbsp;&nbsp;📝</span>
+						</a>
+						<a 
+							class="toggleExcerpt" 
+							href="#" 
+							style="text-decoration: none; color: inherit;"
+							th:data-excerpt="${h.excerpt}" 
+							th:data-visibility="${h.visibility}">
+							<span th:title="${h.excerpt}">⬇️</span>
+						</a>
+					</td>
+					<td>
+						<a 
+							class="editTitleButton" 
+							href="#" >
+							<span>✏️</span>
+						</a>
+						<span th:text="${h.title}"></span>
+					</td>
+					<td>
+						<a 
+							class="editAuthorButton"  
+							href="#" >
+							<span>🖊️</span>
+						</a>
+						<span th:text="${h.author}"></span>
+					</td>
+					<td>
+						<a 
+							class="editSourceButton" 
+							href="#" >
+							<span>🖋️</span>
+						</a>
+						<span th:text="${h.source}"></span>
+					</td>
+					<td>
+						<a 
+							class="addTagButton" 
+							href="#" >
+							<span>➕</span>
+						</a>
+						<a 
+							class="removeTagButton" 
+							href="#" >
+							<span>❌</span>
+						</a>
+						<span th:text="${h.highlightTagsString}"></span>
+					</td>
+					<td>
+						<a 
+							class="editVisibilityButton" 
+							href="#" >
+							<span>✏️</span>
+						</a>
+						<span 
+						  th:text="${#strings.capitalize(h.visibility)}"
+						  th:classappend="${h.visibility == 'shown'} ? 'text-success' : 'text-danger'">
+						</span>
+					</td>
+				</tr>
+			</th:block>
+		</tbody>
+
+		<tfoot>
+			<tr>
+				<td colspan="3"><b>Selected : <span id="selectionCount"></span></b></td>
+				<td>
+					<button id="openUpdateTitleModal" type="button"
+						class="btn btn-primary bulk-action" data-bs-toggle="modal"
+						data-bs-target="#updateTitleModal">Update Title
+					</button>
+				</td>
+				<td>
+					<button id="openUpdateAuthorModal" type="button"
+						class="btn btn-primary bulk-action" data-bs-toggle="modal"
+						data-bs-target="#updateAuthorModal">Update Author</button>
+				</td>
+				<td>
+					<button id="openUpdateSourceModal" type="button"
+						class="btn btn-primary bulk-action" data-bs-toggle="modal"
+						data-bs-target="#updateSourceModal">Update Source</button>
+				</td>
+				<td>
+					<button id="openAddTagModal" type="button"
+						class="btn btn-primary bulk-action" data-bs-toggle="modal"
+						data-bs-target="#addTagModal">Add Tag
+					</button>
+					<button id="openRemoveTagModal" type="button"
+						class="btn btn-primary bulk-action" data-bs-toggle="modal"
+						data-bs-target="#removeTagModal">Remove Tag
+					</button>
+				</td>
+				<td>
+					<button id="openVisibilityModal" type="button"
+						class="btn btn-primary bulk-action" data-bs-toggle="modal"
+						data-bs-target="#updateVisibilityModal">Update Visibility
+					</button>
+				</td>
+			</tr>
+		</tfoot>
+
+	</table>
+	
+	<button id="deselectAll" type="button" class="btn btn-primary">Clear Selection</button>
+	<button id="showAll" type="button" class="btn btn-primary">Show All</button>
+	<button id="hideAll" type="button" class="btn btn-primary">Hide All</button>
+	
+	<!-- Update excerpt Modal -->
+	<div class="modal fade" id="updateExcerptModal" tabindex="-1" aria-labelledby="updateExcerptModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-xl">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-excerpt" id="updateExcerptModalLabel">Update Excerpt</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="container mt-6">
+						<table id="updateExcerptTable" class="table table-striped table-hover align-middle">
+							<thead class="table-light">
+								<tr>
+									<th>ID</th>
+									<th>Title</th>
+									<th>Author</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td></td>
+									<td></td>
+									<td></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					
+					<form class="singleUpdateForm" th:action="@{/web/admin/updateExcerpt}" method="post" autocomplete="off">
+						<div class="mb-3">
+							<label for="newTitle" class="form-label"><b>New Excerpt</b></label> 
+							<textarea id="newExcerpt" class="form-control" name="newString" required style="overflow:hidden;"></textarea>
+						</div>
+						    <!-- hidden inputs go here -->
+    						<div class="timestampContainer"></div>
+						<button type="submit" class="btn btn-success">Update</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- Update Title Modal -->
+	<div class="modal fade" id="updateTitleModal" tabindex="-1" aria-labelledby="updateTitleModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="updateTitleModalLabel">Bulk Update Title</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="container mt-4">
+						<table id="updateTitleTable" class="table table-striped table-hover align-middle">
+							<thead class="table-light">
+								<tr>
+									<th>ID</th>
+									<th>Current Title</th>
+									<th>🔍</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td></td>
+									<td></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<form class="bulkUpdateForm" th:action="@{/web/admin/updateTitle}" method="post" autocomplete="off">
+						<div class="mb-3">
+							<label for="newTitle" class="form-label"><b>New Title</b></label> 
+							<input type="text"  class="form-control" name="newString" required>
+						</div>
+						    <!-- hidden inputs go here -->
+    						<div class="timestampContainer"></div>
+						<button type="submit" class="btn btn-success">Update</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- Update Author Modal -->
+	<div class="modal fade" id="updateAuthorModal" tabindex="-1" aria-labelledby="updateAuthorModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-author" id="updateAuthorModalLabel">Bulk Update Author</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="container mt-4">
+						<table id="updateAuthorTable" class="table table-striped table-hover align-middle">
+							<thead class="table-light">
+								<tr>
+									<th>ID</th>
+									<th>Current Author</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td></td>
+									<td></td>
+									<td></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<form class="bulkUpdateForm" th:action="@{/web/admin/updateAuthor}" method="post" autocomplete="off">
+						<div class="mb-3">
+							<label for="newTitle" class="form-label"><b>New Author</b></label> 
+							<input type="text"  class="form-control" name="newString" required>
+						</div>
+						    <!-- hidden inputs go here -->
+    						<div class="timestampContainer"></div>
+						<button type="submit" class="btn btn-success">Update</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- Update Source Modal -->
+	<div class="modal fade" id="updateSourceModal" tabindex="-1" aria-labelledby="updateSourceModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-source" id="updateSourceModalLabel">Bulk Update Source</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="container mt-4">
+						<table id="updateSourceTable" class="table table-striped table-hover align-middle">
+							<thead class="table-light">
+								<tr>
+									<th>ID</th>
+									<th>Current Source</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td></td>
+									<td></td>
+									<td></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<form class="bulkUpdateForm" th:action="@{/web/admin/updateSource}" method="post" autocomplete="off">
+						<div class="mb-3">
+							<label for="newTitle" class="form-label"><b>New Source</b></label> 
+							<input type="text"  class="form-control" name="newString" required>
+						</div>
+						    <!-- hidden inputs go here -->
+    						<div class="timestampContainer"></div>
+						<button type="submit" class="btn btn-success">Update</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- Add Tag Modal -->
+	<div class="modal fade" id="addTagModal" tabindex="-1" aria-labelledby="addTagModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-author" id="addTagModalLabel">Bulk Add Tag</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="container mt-4">
+						<table id="addTagTable" class="table table-striped table-hover align-middle">
+							<thead class="table-light">
+								<tr>
+									<th>ID</th>
+									<th>Current Tag List</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td></td>
+									<td></td>
+									<td></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<form class="bulkUpdateForm" th:action="@{/web/admin/addTag}" method="post" autocomplete="off">
+						<div class="mb-3">
+							<label for="newTitle" class="form-label"><b>New Tags (Comma-Seperated)</b></label> 
+							<input type="text"  class="form-control" name="newString" required>
+						</div>
+						    <!-- hidden inputs go here -->
+    						<div class="timestampContainer"></div>
+						<button type="submit" class="btn btn-success">Update</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- Remove Tag Modal -->
+	<div class="modal fade" id="removeTagModal" tabindex="-1" aria-labelledby="removeTagModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-author" id="removeTagModalLabel">Bulk Remove Tag</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="container mt-4">
+						<table id="removeTagTable" class="table table-striped table-hover align-middle">
+							<thead class="table-light">
+								<tr>
+									<th>ID</th>
+									<th>Current Tag List</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td></td>
+									<td></td>
+									<td></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<form class="bulkUpdateForm" th:action="@{/web/admin/removeTag}" method="post" autocomplete="off">
+						<div class="mb-3">
+							<label for="newTitle" class="form-label"><b>Remove Tags (Comma-Seperated)</b></label> 
+							<input type="text"  class="form-control" name="newString" required>
+						</div>
+						    <!-- hidden inputs go here -->
+    						<div class="timestampContainer"></div>
+						<button type="submit" class="btn btn-success">Update</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div> 
+	
+	<!-- Update Visibility Modal -->
+	<div class="modal fade" id="updateVisibilityModal" tabindex="-1" aria-labelledby="updateVisibilityModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-Visibility" id="updateVisibilityModalLabel">Bulk Update Visibility</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="container mt-4">
+						<table id="updateVisibilityTable" class="table table-striped table-hover align-middle">
+							<thead class="table-light">
+								<tr>
+									<th>ID</th>
+									<th>Current Visibility</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td></td>
+									<td></td>
+									<td></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<form class="bulkUpdateForm" th:action="@{/web/admin/updateVisibility}" method="post" autocomplete="off">
+						<div class="mb-3">
+							<label for="newTitle" class="form-label"><b>New Visibility</b></label> 
+							<select class="form-control" name="newString" required>
+							    <option value="" disabled selected>Select an option</option>
+							    <option value="hidden">Hidden</option>
+							    <option value="shown">Shown</option>
+							</select>
+						</div>
+						    <!-- hidden inputs go here -->
+    						<div class="timestampContainer"></div>
+						<button type="submit" class="btn btn-success">Update</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- Manual Upload Modal -->
+	<div class="modal fade" id="manualUploadModal" tabindex="-1" aria-labelledby="manualUploadModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-author" id="manualUploadModalLabel">Manual Upload</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					
+					<form class="" th:action="@{/web/admin/manualUpload}" method="post" autocomplete="off">
+						
+						<div class="mb-3">
+							<label for="newTitle" class="form-label"><b>Title</b><span class="text-danger">*</span></label> 
+							<input type="text"  class="form-control" name="title" required>
+						</div>
+						
+						<div class="mb-3">
+							<label for="newTitle" class="form-label"><b>Author</b><span class="text-danger">*</span></label> 
+							<input type="text"  class="form-control" name="author" required>
+						</div>
+						
+						<div class="mb-3">
+							<label for="newTitle" class="form-label"><b>Text/Excerpt</b><span class="text-danger">*</span></label> 
+							<textarea class="form-control" name="excerpt" rows="5" required></textarea>
+						</div>
+						
+						<div class="mb-3">
+							<label for="newTitle" class="form-label"><b>Source</b></label> 
+							<input type="text" 
+									class="form-control" 
+									name="source"
+									placeholder="e.g. Book, Newspaper, Magazine, Website, Misc etc">
+						</div>
+						
+						<div class="mb-3">
+						    <label class="form-label"><b>Tags (Comma-Seperated)</b></label> 
+						    <input type="text"
+						           class="form-control"
+						           name="highlightTags"
+						           placeholder="e.g. Russia, China, tech, Finance, etc">
+						</div>
+						
+						<div class="mb-3">
+							<label for="newTitle" class="form-label"><b>Page</b></label> 
+							<input type="text"  class="form-control" name="page">
+						</div>
+						
+						<div class="mb-3">
+							<label for="newTitle" class="form-label"><b>Note</b></label> 
+							<input type="text"  class="form-control" name="note">
+						</div>
+
+						<button type="submit" class="btn btn-success">Update</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- File Upload Modal -->
+	<div class="modal fade" id="fileUploadModal" tabindex="-1" aria-labelledby="fileUploadModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-author" id="fileUploadModalLabel">File Upload</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<form th:action="@{/web/admin/fileUpload}" 
+                      	method="post" 
+                      	enctype="multipart/form-data">
+	                    <div class="mb-3">
+	                        <label class="form-label"><b>Choose file</b></label>
+	                        <input type="file" 
+	                               name="file" 
+	                               class="form-control" 
+	                               required>
+	                    </div>
+	                    <button type="submit" class="btn btn-primary">
+	                        Upload
+	                    </button>
+	                </form>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- File Upload Modal -->
+	<div class="modal fade" id="jsonImportModal" tabindex="-1" aria-labelledby="jsonImportModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-author" id="jsonImportModalLabel">Import JSON</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+				
+					<form method="post" action="/web/admin/importJson" enctype="multipart/form-data">
+					    
+					     <div class="mb-3">
+	                        <label class="form-label"><b>Choose file</b></label>
+	                        <input type="file" 
+	                               name="file" 
+	                               accept=".json"
+	                               class="form-control" 
+	                               required>
+	                    </div>
+					    
+					    <button type="submit" class="btn btn-primary">
+					        Import All from JSON
+					    </button>
+					    
+					</form>
+	
+				</div>
+			</div>
+		</div>
+	</div>
+
+<script src="/js/admin.js"></script>
+
+</body>
+</html>

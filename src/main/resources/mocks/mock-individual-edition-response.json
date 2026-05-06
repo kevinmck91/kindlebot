@@ -1,0 +1,50 @@
+[
+  {
+    "name": "NY_2025-01-27.epub",
+    "path": "NY/2025/2025-01-27/NY_2025-01-27.epub",
+    "sha": "cea35ccfd4fd03fc6e9a4297346353a8532d5b6f",
+    "size": 10886453,
+    "url": "https://api.github.com/repos/Monkfishare/New_Yorker/contents/NY/2025/2025-01-27/NY_2025-01-27.epub?ref=main",
+    "html_url": "https://github.com/Monkfishare/New_Yorker/blob/main/NY/2025/2025-01-27/NY_2025-01-27.epub",
+    "git_url": "https://api.github.com/repos/Monkfishare/New_Yorker/git/blobs/cea35ccfd4fd03fc6e9a4297346353a8532d5b6f",
+    "download_url": "https://raw.githubusercontent.com/Monkfishare/New_Yorker/main/NY/2025/2025-01-27/NY_2025-01-27.epub",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/Monkfishare/New_Yorker/contents/NY/2025/2025-01-27/NY_2025-01-27.epub?ref=main",
+      "git": "https://api.github.com/repos/Monkfishare/New_Yorker/git/blobs/cea35ccfd4fd03fc6e9a4297346353a8532d5b6f",
+      "html": "https://github.com/Monkfishare/New_Yorker/blob/main/NY/2025/2025-01-27/NY_2025-01-27.epub"
+    }
+  },
+  {
+    "name": "NY_2025-01-27.pdf",
+    "path": "NY/2025/2025-01-27/NY_2025-01-27.pdf",
+    "sha": "0a036e141c5678d4e7a3dabc58289e7324c2bac1",
+    "size": 12611724,
+    "url": "https://api.github.com/repos/Monkfishare/New_Yorker/contents/NY/2025/2025-01-27/NY_2025-01-27.pdf?ref=main",
+    "html_url": "https://github.com/Monkfishare/New_Yorker/blob/main/NY/2025/2025-01-27/NY_2025-01-27.pdf",
+    "git_url": "https://api.github.com/repos/Monkfishare/New_Yorker/git/blobs/0a036e141c5678d4e7a3dabc58289e7324c2bac1",
+    "download_url": "https://raw.githubusercontent.com/Monkfishare/New_Yorker/main/NY/2025/2025-01-27/NY_2025-01-27.pdf",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/Monkfishare/New_Yorker/contents/NY/2025/2025-01-27/NY_2025-01-27.pdf?ref=main",
+      "git": "https://api.github.com/repos/Monkfishare/New_Yorker/git/blobs/0a036e141c5678d4e7a3dabc58289e7324c2bac1",
+      "html": "https://github.com/Monkfishare/New_Yorker/blob/main/NY/2025/2025-01-27/NY_2025-01-27.pdf"
+    }
+  },
+  {
+    "name": "cover.jpg",
+    "path": "NY/2025/2025-01-27/cover.jpg",
+    "sha": "62a752ddb1d8ce0e39ecedfa58a210550122f529",
+    "size": 298385,
+    "url": "https://api.github.com/repos/Monkfishare/New_Yorker/contents/NY/2025/2025-01-27/cover.jpg?ref=main",
+    "html_url": "https://github.com/Monkfishare/New_Yorker/blob/main/NY/2025/2025-01-27/cover.jpg",
+    "git_url": "https://api.github.com/repos/Monkfishare/New_Yorker/git/blobs/62a752ddb1d8ce0e39ecedfa58a210550122f529",
+    "download_url": "https://raw.githubusercontent.com/Monkfishare/New_Yorker/main/NY/2025/2025-01-27/cover.jpg",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/Monkfishare/New_Yorker/contents/NY/2025/2025-01-27/cover.jpg?ref=main",
+      "git": "https://api.github.com/repos/Monkfishare/New_Yorker/git/blobs/62a752ddb1d8ce0e39ecedfa58a210550122f529",
+      "html": "https://github.com/Monkfishare/New_Yorker/blob/main/NY/2025/2025-01-27/cover.jpg"
+    }
+  }
+]

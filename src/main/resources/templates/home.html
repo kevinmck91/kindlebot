@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<!-- 
+  Kindle Highlights Viewer
+  A responsive web app that fetches book highlights from Firebase and displays them.
+  Users can filter highlights by book title or tag using the left sidebar navigation.
+-->
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+	<style>
+		/* ========== LAYOUT STYLES ========== */
+		body {
+			font-family: Arial, sans-serif;
+			background: #f7f7f7;
+			margin: 0;
+			display: flex;
+		}
+
+		/* Fixed sidebar navigation on the left */
+		.sidebar {
+			position: fixed;
+			left: 0;
+			top: 0;
+			width: 250px;
+			height: 100vh;
+			background: white;
+			box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+			display: flex;
+			flex-direction: column;
+			overflow-y: auto;
+		}
+
+		/* Container for toggle buttons (Titles/Tags) */
+		.sidebar-toggles {
+			display: flex;
+			border-bottom: 1px solid #eee;
+		}
+
+		/* ========== TOGGLE BUTTONS (Titles vs Tags) ========== */
+		.toggle-btn {
+			flex: 1;
+			padding: 15px;
+			background: white;
+			border: none;
+			border-bottom: 3px solid transparent;
+			cursor: pointer;
+			font-weight: bold;
+			font-size: 0.95em;
+			transition: all 0.2s;
+			text-align: center;
+		}
+
+		.toggle-btn:hover {
+			background: #f5f5f5;
+		}
+
+		/* Active toggle button gets blue highlight */
+		.toggle-btn.active {
+			border-bottom-color: #007bff;
+			color: #007bff;
+		}
+
+		/* ========== NAV SECTIONS (Titles and Tags content) ========== */
+		/* Each section (titles or tags) is hidden by default */
+		.nav-section {
+			display: none;
+			flex: 1;
+			overflow-y: auto;
+			padding: 10px;
+		}
+
+		/* Show the active section */
+		.nav-section.active {
+			display: flex;
+			flex-direction: column;
+		}
+
+		/* Container for list of buttons in the nav */
+		.nav-buttons {
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+		}
+
+		/* ========== NAV BUTTONS (Individual title/tag buttons) ========== */
+		.nav-btn {
+			padding: 12px;
+			border: 1px solid #ddd;
+			border-radius: 5px;
+			background: white;
+			cursor: pointer;
+			font-size: 0.9em;
+			transition: all 0.2s;
+			text-align: left;
+			white-space: normal;
+			word-break: break-word;
+		}
+
+		.nav-btn:hover {
+			background: #f0f0f0;
+		}
+
+		/* Active nav button (selected filter) */
+		.nav-btn.active {
+			background: #007bff;
+			color: white;
+			border-color: #007bff;
+		}
+
+		/* ========== MAIN CONTENT AREA ========== */
+		/* Shifts right to make room for fixed sidebar */
+		.main-content {
+			margin-left: 250px;
+			background: white;
+			flex: 1;
+			padding: 20px;
+		}
+
+		.container {
+			max-width: 1000px;
+			margin: 0 auto;
+		}
+
+		/* ========== EXCERPT CARDS ========== */
+		.excerpt-card {
+			background: white;
+			padding: 20px;
+			margin-bottom: 15px;
+			border-radius: 8px;
+			box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+		}
+
+		.excerpt-title {
+			font-weight: bold;
+			color: #333;
+			margin-bottom: 8px;
+		}
+
+		.excerpt-author {
+			color: #666;
+			font-size: 0.9em;
+			margin-bottom: 8px;
+		}
+
+		.excerpt-text {
+			line-height: 1.6;
+			color: #333;
+			margin-bottom: 12px;
+			font-style: italic;
+			white-space: pre-line;
+		}
+
+		.excerpt-meta {
+			color: #999;
+			font-size: 0.85em;
+			margin-bottom: 8px;
+		}
+
+		/* ========== TAGS IN EXCERPT CARDS ========== */
+		.excerpt-tags {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 6px;
+		}
+
+		/* Individual tag badges (clickable) */
+		.tag-badge {
+			background: #e9ecef;
+			padding: 4px 8px;
+			border-radius: 3px;
+			font-size: 0.85em;
+			cursor: pointer;
+			transition: all 0.2s;
+		}
+
+		.tag-badge:hover {
+			background: #dee2e6;
+		}
+
+		/* ========== UTILITY STYLES ========== */
+		.no-results {
+			text-align: center;
+			color: #999;
+			padding: 40px;
+		}
+
+		.filter-active {
+			font-size: 0.9em;
+			color: #666;
+			margin-bottom: 10px;
+		}
+
+		.reset-btn {
+			padding: 6px 12px;
+			font-size: 0.85em;
+		}
+	</style>
+</head>
+
+<body>
+
+<!-- ========== SIDEBAR NAVIGATION ========== -->
+<div class="sidebar">
+	<!-- Toggle buttons to switch between Titles and Tags views -->
+	<div class="sidebar-toggles">
+		<button class="toggle-btn active" data-section="titles">📚 Titles</button>
+    <button class="toggle-btn" data-section="authors">👥 Authors</button>
+		<button class="toggle-btn" data-section="tags">🏷️ Tags</button>
+	</div>
+	
+	<!-- Titles Section: Shows list of book titles -->
+	<div id="titlesSection" class="nav-section active">
+		<div id="titlesNav" class="nav-buttons"></div>
+	</div>
+	
+	<!-- Tags Section: Shows list of available tags -->
+	<div id="tagsSection" class="nav-section">
+		<div id="tagsNav" class="nav-buttons"></div>
+	</div>
+
+  	<!-- Authors Section: Shows list of available authors -->
+	<div id="authorsSection" class="nav-section">
+		<div id="authorsNav" class="nav-buttons"></div>
+	</div>
+</div>
+
+<!-- ========== MAIN CONTENT AREA ========== -->
+<div class="main-content">
+	<div class="container">
+		<!-- Filter info message (shows current filter) -->
+		<div id="filterInfo" class="filter-active"></div>
+		
+		<!-- Excerpt cards will be rendered here -->
+		<div id="excerpts"></div>
+	</div>
+</div>
+
+<script type="module">
+
+/* ========== FIREBASE INITIALIZATION ========== */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+// Firebase project configuration
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "kindlebot-3a976.firebaseapp.com",
+  projectId: "kindlebot-3a976",
+  storageBucket: "kindlebot-3a976.firebasestorage.app",
+  messagingSenderId: "305012535430",
+  appId: "1:305012535430:web:6d8b4b04253901a11f2107"
+};
+
+// Initialize Firebase app and Firestore database
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* ========== STATE VARIABLES ========== */
+let allHighlights = [];      // All highlights fetched from Firebase
+let filterType = null;       // Current filter type: 'title' or 'tag'
+let filterValue = null;      // Current filter value (the selected title or tag)
+
+/* ========== MAIN FUNCTIONS ========== */
+
+/**
+ * Loads all highlights from Firebase and initializes the app.
+ * Fetches highlights that are not hidden (visibility !== "hidden")
+ */
+async function loadData() {
+	try {
+		// Fetch all documents from the "highlights" collection
+		const snapshot = await getDocs(collection(db, "highlights"));
+		allHighlights = [];
+
+		// Process each document
+		snapshot.forEach(doc => {
+			const h = doc.data();
+			// Only add highlights that are visible (not marked as hidden)
+			if (!h.visibility || h.visibility !== "hidden") {
+				allHighlights.push(h);
+			}
+		});
+
+		// Build the navigation buttons and display all excerpts
+		buildNavigation();
+		renderExcerpts(allHighlights);
+
+	} catch (err) {
+		document.getElementById("excerpts").innerHTML = "<div class='no-results'>Error loading data. Check console.</div>";
+		console.error(err);
+	}
+}
+
+/**
+ * Builds the navigation UI (title and tag buttons).
+ * Creates buttons for each unique title and tag.
+ * Attaches event listeners for filtering and toggling between views.
+ */
+function buildNavigation() {
+	// Extract unique titles and sort alphabetically
+	const titles = [...new Set(allHighlights.map(h => h.title))].sort();
+	
+	// Extract unique tags and sort alphabetically
+	const tags = [...new Set(allHighlights.flatMap(h => h.highlightTags || []))].sort();
+
+  // Extract unique tags and sort alphabetically
+	const authors = [...new Set(allHighlights.flatMap(h => h.author || []))].sort();
+
+	/* ===== POPULATE TITLES NAVIGATION ===== */
+	const titlesNav = document.getElementById("titlesNav");
+	titlesNav.innerHTML = titles.map(title => 
+		`<button class="nav-btn" data-type="title" data-value="${title}">${title}</button>`
+	).join("");
+
+	/* ===== POPULATE TAGS NAVIGATION ===== */
+	const tagsNav = document.getElementById("tagsNav");
+	tagsNav.innerHTML = tags.map(tag => 
+		`<button class="nav-btn" data-type="tag" data-value="${tag}">${tag}</button>`
+	).join("");
+
+  /* ===== POPULATE AUTHOR NAVIGATION ===== */
+	const authorsNav = document.getElementById("authorsNav");
+	authorsNav.innerHTML = authors.map(author => 
+		`<button class="nav-btn" data-type="author" data-value="${author}">${author}</button>`
+	).join("");
+
+	/* ===== ATTACH CLICK HANDLERS TO NAV BUTTONS ===== */
+	document.querySelectorAll('.nav-btn').forEach(btn => {
+		btn.addEventListener('click', function() {
+			const type = this.dataset.type;  // 'title' or 'tag'
+			const value = this.dataset.value;  // The title or tag name
+
+			// Remove active class from all buttons of this type
+			document.querySelectorAll(`.nav-btn[data-type="${type}"]`).forEach(b => b.classList.remove('active'));
+
+			// Toggle: if same filter clicked again, clear the filter
+			if (filterType === type && filterValue === value) {
+				filterType = null;
+				filterValue = null;
+			} else {
+				// Set new filter
+				filterType = type;
+				filterValue = value;
+				this.classList.add('active');
+			}
+
+			// Re-render excerpts with new filter
+			renderExcerpts(getFilteredExcerpts());
+		});
+	});
+
+	/* ===== ATTACH CLICK HANDLERS TO TOGGLE BUTTONS ===== */
+	// Allows switching between Titles and Tags views
+	document.querySelectorAll('.toggle-btn').forEach(btn => {
+		btn.addEventListener('click', function() {
+			const section = this.dataset.section;  // 'titles' or 'tags'
+			
+			// Remove active class from all toggle buttons
+			document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+			
+			// Hide all sections
+			document.querySelectorAll('.nav-section').forEach(s => s.classList.remove('active'));
+			
+			// Show only the selected section
+			this.classList.add('active');
+			document.getElementById(section + 'Section').classList.add('active');
+		});
+	});
+}
+
+/**
+ * Returns filtered excerpts based on current filter.
+ * If no filter is active, returns all highlights.
+ */
+function getFilteredExcerpts() {
+	// No filter: return all excerpts
+	if (!filterType || !filterValue) {
+		return allHighlights;
+	}
+
+	// Filter by title: return all excerpts that match the selected title
+	if (filterType === 'title') {
+		return allHighlights.filter(h => h.title === filterValue);
+	} 
+	// Filter by tag: return all excerpts that have the selected tag
+	else if (filterType === 'tag') {
+		return allHighlights.filter(h => (h.highlightTags || []).includes(filterValue));
+	}
+
+  	// Filter by author: return all excerpts that have the selected author
+	else if (filterType === 'author') {
+		return allHighlights.filter(h => h.author === filterValue);
+	}
+
+	return allHighlights;
+}
+
+/**
+ * Renders excerpt cards in the main content area.
+ * Updates the filter info message and generates HTML for each excerpt.
+ */
+function renderExcerpts(excerpts) {
+	const container = document.getElementById("excerpts");
+	const filterInfo = document.getElementById("filterInfo");
+
+	/* ===== UPDATE FILTER INFO MESSAGE ===== */
+	if (filterType && filterValue) {
+		// Show icon (book for title, tag for tag) and filter details
+		const label = filterType === 'title' ? '📚' : '🏷️';
+		filterInfo.innerHTML = `${label} Showing ${excerpts.length} result(s) for: <strong>${filterValue}</strong> <button class="btn btn-sm btn-outline-secondary reset-btn" onclick="location.reload()">Reset</button>`;
+	} else {
+		// No filter active: show all results
+		filterInfo.innerHTML = `Showing all ${excerpts.length} highlight(s)`;
+	}
+
+	/* ===== HANDLE EMPTY RESULTS ===== */
+	if (excerpts.length === 0) {
+		container.innerHTML = "<div class='no-results'>No excerpts found.</div>";
+		return;
+	}
+
+	/* ===== RENDER EXCERPT CARDS ===== */
+	container.innerHTML = excerpts.map(h => `
+		<div class="excerpt-card">
+			<!-- Book title -->
+			<div class="excerpt-title">${h.title}</div>
+			
+			<!-- Author and page number -->
+			<div class="excerpt-author">by ${h.author} • Page ${h.page} • ${h.timestampHash}</div>
+			
+			<!-- The highlighted text -->
+			<div class="excerpt-text">${h.excerpt}</div>
+			
+			<!-- Date when highlighted -->
+			<!-- <div class="excerpt-meta">${h.timestampHash} - ${h.dateString}</div> -->
+			
+			<!-- Tags (clickable to filter) -->
+			${h.highlightTags && h.highlightTags.length > 0 ? `
+				<div class="excerpt-tags">
+					${h.highlightTags.map(tag => `<span class="tag-badge" onclick="filterByTag('${tag}')">${tag}</span>`).join("")}
+				</div>
+			` : ""}
+		</div>
+	`).join("");
+}
+
+/* ========== GLOBAL HELPER FUNCTIONS ========== */
+
+/**
+ * Filters excerpts by a specific tag.
+ * Called when user clicks a tag badge on an excerpt card.
+ */
+window.filterByTag = function(tag) {
+	// Set filter to this tag
+	filterType = 'tag';
+	filterValue = tag;
+	
+	// Remove active class from all tag buttons
+	document.querySelectorAll('.nav-btn[data-type="tag"]').forEach(b => b.classList.remove('active'));
+	
+	// Add active class to the selected tag button
+	document.querySelector(`.nav-btn[data-type="tag"][data-value="${tag}"]`).classList.add('active');
+	
+	// Switch to Tags view
+	document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+	document.querySelector('.toggle-btn[data-section="tags"]').classList.add('active');
+	document.querySelectorAll('.nav-section').forEach(s => s.classList.remove('active'));
+	document.getElementById('tagsSection').classList.add('active');
+	
+	// Render filtered excerpts
+	renderExcerpts(getFilteredExcerpts());
+};
+
+/* ========== INITIALIZATION ========== */
+// Start the app by loading data from Firebase
+loadData();
+
+</script>
+
+</body>
+</html>

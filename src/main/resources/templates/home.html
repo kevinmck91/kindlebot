@@ -238,7 +238,7 @@
 	</div>
 </div>
 
-<script type="module">
+<script th:inline="javascript" type="module">
 
 /* ========== FIREBASE INITIALIZATION ========== */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
@@ -250,12 +250,12 @@ import {
 
 // Firebase project configuration
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "kindlebot-3a976.firebaseapp.com",
-  projectId: "kindlebot-3a976",
-  storageBucket: "kindlebot-3a976.firebasestorage.app",
-  messagingSenderId: "305012535430",
-  appId: "1:305012535430:web:6d8b4b04253901a11f2107"
+  apiKey: /*[[${firebaseApiKey}]]*/ "",
+  authDomain: /*[[${firebaseAuthDomain}]]*/ "",
+  projectId: /*[[${firebaseProjectId}]]*/ "",
+  storageBucket: /*[[${firebaseStorageBucket}]]*/ "",
+  messagingSenderId: /*[[${firebaseMessagingSenderId}]]*/ "",
+  appId: /*[[${firebaseAppId}]]*/ ""
 };
 
 // Initialize Firebase app and Firestore database

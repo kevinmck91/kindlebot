@@ -8,6 +8,7 @@ import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -34,6 +35,24 @@ public class HighlightsWebController {
 	private final HighlightService highlightService;
 	private static final Logger logger = LoggerFactory.getLogger(HighlightsWebController.class);
 
+	@Value("${firebase.apiKey}")
+    private String firebaseApiKey;
+
+    @Value("${firebase.authDomain}")
+    private String firebaseAuthDomain;
+
+    @Value("${firebase.projectId}")
+    private String firebaseProjectId;
+
+    @Value("${firebase.storageBucket}")
+    private String firebaseStorageBucket;
+
+    @Value("${firebase.messagingSenderId}")
+    private String firebaseMessagingSenderId;
+
+    @Value("${firebase.appId}")
+    private String firebaseAppId;
+	
 	@Autowired
 	public HighlightsWebController(HighlightService highlightService) {
 		this.highlightService = highlightService;
@@ -42,6 +61,13 @@ public class HighlightsWebController {
 	@GetMapping("/home")
 	public String showHomePage(Model model) {
 
+		model.addAttribute("firebaseApiKey", firebaseApiKey);
+        model.addAttribute("firebaseAuthDomain", firebaseAuthDomain);
+        model.addAttribute("firebaseProjectId", firebaseProjectId);
+        model.addAttribute("firebaseStorageBucket", firebaseStorageBucket);
+        model.addAttribute("firebaseMessagingSenderId", firebaseMessagingSenderId);
+        model.addAttribute("firebaseAppId", firebaseAppId);
+        
 		logger.info("[Get] - [/web/home] - [showHomePage]");
 
 		return "home";

@@ -18,10 +18,9 @@ public class HomeController {
 	public ResponseEntity<List<AppDetails>> loadHomepage(HttpServletRequest request) {
 
 		List<AppDetails> availableApplications = new ArrayList<>();
-		
-		availableApplications.add(new AppDetails(1, "Magazines", "localhost:8080/magazine"));
-		availableApplications.add(new AppDetails(2, "Kindle Highlights", "localhost:8080/highlight"));
-		
+
+		availableApplications.add(new AppDetails(1, "Kindle Highlights & Excerpts", "localhost:8080/web/home"));
+
 		return ResponseEntity.ok(availableApplications);
 	}
 }

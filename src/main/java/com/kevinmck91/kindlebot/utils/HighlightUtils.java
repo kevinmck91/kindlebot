@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,7 +116,7 @@ public class HighlightUtils {
 			if (addedPos != -1) {
 				String dateString = metadataLine.substring(addedPos + addedPrefix.length()).trim();
 				highlight.setDateString(dateString);
-				highlight.setTimestampHash(MagazineUtils.formatDate(dateString));
+				highlight.setTimestampHash(HighlightUtils.formatDate(dateString));
 			} else {
 				throw new Exception("Timestamp not found");
 			}
@@ -133,7 +134,7 @@ public class HighlightUtils {
 
 			// Set the other default
 			highlight.setSource("");
-			highlight.setHighlightTagsString("");	//Tags are added later, not part of clipping.txt upload
+			highlight.setHighlightTagsString(""); // Tags are added later, not part of clipping.txt upload
 			highlight.setVisibility("shown");
 
 			return highlight;
@@ -146,6 +147,20 @@ public class HighlightUtils {
 
 		}
 
+	}
+
+	public static String formatDate(String dateString) {
+		// Define formatter for input string
+		DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy HH:mm:ss", Locale.ENGLISH);
+
+		// Parse input string to LocalDateTime
+		LocalDateTime dateTime = LocalDateTime.parse(dateString, inputFormatter);
+
+		// Define output formatter for desired pattern: YYYYmmddHHmmss
+		DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+
+		// Format the LocalDateTime to output string
+		return dateTime.format(outputFormatter);
 	}
 
 	/**
@@ -169,7 +184,7 @@ public class HighlightUtils {
 		highlight.setNote(highlightRequest.getNote());
 		highlight.setHighlightTags(highlightRequest.getHighlightTags());
 		highlight.setSource(highlightRequest.getSource());
-		
+
 		// Set other variable for the highlight
 		highlight.setVisibility("shown");
 		highlight.setHighlightHeader(highlightRequest.getTitle() + " (" + highlightRequest.getAuthor() + ")");
@@ -189,11 +204,11 @@ public class HighlightUtils {
 		Collections.sort(tags);
 
 		for (String tag : tags) {
-		    tagString += tag + ", ";
+			tagString += tag + ", ";
 		}
-		
+
 		highlight.setHighlightTagsString(tagString);
-		
+
 		return highlight;
 
 	}

@@ -19,7 +19,9 @@ public class HomeController {
 
 		availableApplications.add(new AppDetails(1, "Magazines", "/magazinebot", "📰"));
 
-		availableApplications.add(new AppDetails(2, "Highlights & Clippings", "/kindlebot/home", "📚"));
+		availableApplications.add(new AppDetails(2, "Highlights & Clippings - User", "/kindlebot/home", "📚"));
+		
+		availableApplications.add(new AppDetails(3, "Highlights & Clippings - Admin", "/kindlebot/admin", "⚙️"));
 
 		model.addAttribute("apps", availableApplications);
 

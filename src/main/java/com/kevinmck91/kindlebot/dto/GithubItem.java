@@ -10,6 +10,9 @@ public class GithubItem {
 	private String name;
 
 	@JsonProperty("")
+	private String description;
+
+	@JsonProperty("")
 	private String path;
 
 	@JsonProperty("")
@@ -32,6 +35,9 @@ public class GithubItem {
 
 	@JsonProperty("")
 	private String type;
+	
+	@JsonProperty("")
+	private int step;
 
 	public String getName() {
 		return name;
@@ -103,6 +109,22 @@ public class GithubItem {
 
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public int getStep() {
+		return step;
+	}
+
+	public void setStep(int step) {
+		this.step = step;
 	}
 
 }

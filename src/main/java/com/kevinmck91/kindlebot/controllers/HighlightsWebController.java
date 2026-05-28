@@ -29,7 +29,7 @@ import com.kevinmck91.kindlebot.dto.response.FileUploadResponse;
 import com.kevinmck91.kindlebot.service.HighlightService;
 
 @Controller
-@RequestMapping("/web")
+@RequestMapping("/kindlebot")
 public class HighlightsWebController {
 
 	private final HighlightService highlightService;
@@ -70,7 +70,7 @@ public class HighlightsWebController {
         
 		logger.info("[Get] - [/web/home] - [showHomePage]");
 
-		return "home";
+		return "kindlebot/home";
 	}
 
 	@GetMapping("/admin")
@@ -91,7 +91,7 @@ public class HighlightsWebController {
 		}
 
 		// maps to src/main/resources/templates/admin.html
-		return "admin";
+		return "kindlebot/admin";
 	}
 
 	@GetMapping("/admin/exportJson")

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Applications</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            padding: 40px;
+        }
+
+        .grid {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            width: 220px;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            text-decoration: none;
+            color: black;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+        }
+
+        .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Available Applications</h1>
+
+<div class="grid">
+
+    <a th:each="app : ${apps}"
+       th:href="${app.rootUrl}"
+       class="card">
+
+        <div class="icon" th:text="${app.icon}"></div>
+
+        <div class="title" th:text="${app.name}"></div>
+
+    </a>
+
+</div>
+
+</body>
+</html>

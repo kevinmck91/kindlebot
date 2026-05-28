@@ -21,12 +21,11 @@ public class KindlebotApplication {
 		SpringApplication.run(KindlebotApplication.class, args);
 
 		System.out.println();
-		System.out.println("╔════════════════════════════════════════════════════════════╗");
-		System.out.println("║                 🚀 APPLICATION STARTED                    ║");
-		System.out.println("╠════════════════════════════════════════════════════════════╣");
-		System.out.println("║  🔐 Admin Application  →  http://localhost:8080/web/admin ║");
-		System.out.println("║  🌐 Main  Application  →  http://localhost:8080/web/home  ║");
-		System.out.println("╚════════════════════════════════════════════════════════════╝");
+		System.out.println("╔═══════════════════════════════════════════════════════════╗");
+		System.out.println("║                 🚀 APPLICATION STARTED						║");
+		System.out.println("╠═══════════════════════════════════════════════════════════╣");
+		System.out.println("║  🌐 Homepage  →  http://localhost:8080						║");
+		System.out.println("╚═══════════════════════════════════════════════════════════╝");
 		System.out.println();
 
 	}

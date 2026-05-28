@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kevinmck91.kindlebot.dto.GithubItem;
@@ -25,23 +26,24 @@ import com.kevinmck91.kindlebot.service.MagazineService;
 import com.kevinmck91.kindlebot.utils.MagazineUtils;
 
 @RestController
-public class MagazineController {
+@RequestMapping("/api/magazine")
+public class MagazineRestController {
 
 	@Autowired
 	private MagazineService magazineService;
 
-	private static final Logger logger = LoggerFactory.getLogger(MagazineController.class);
+	private static final Logger logger = LoggerFactory.getLogger(MagazineRestController.class);
 
 	// Constructor
 	// The constructor is needed because of how Spring Boot does Dependency
 	// Injection (DI).
 	// To provide (or "inject") the HighlightsService into your controller, Spring
 	// needs a constructor.
-	public MagazineController(MagazineService magazineService) {
+	public MagazineRestController(MagazineService magazineService) {
 		this.magazineService = magazineService;
 	}
 
-	@GetMapping("/magazine")
+	@GetMapping("")
 	public List<MagazineResponse> fetchAllMagazines() throws IOException {
 
 		logger.info(" - ");
@@ -55,7 +57,7 @@ public class MagazineController {
 		return magazineResponseList;
 	}
 
-	@PostMapping("/magazine/editions")
+	@PostMapping("/editions")
 	public List<MagazineResponse> fetchMagazineEditions(@RequestBody MagazineRequest request) throws IOException {
 
 		logger.info(" - ");
@@ -69,7 +71,7 @@ public class MagazineController {
 		return magazineResponseList;
 	}
 
-	@PostMapping("/magazine/edition")
+	@PostMapping("/edition")
 	public List<MagazineResponse> fetchIndividualEdition(@RequestBody MagazineRequest request) throws Exception {
 
 		logger.info(" - ");
@@ -82,43 +84,58 @@ public class MagazineController {
 
 	}
 
-	@PostMapping("/magazine/edition/pdf")
+	@PostMapping("/edition/pdf")
 	public ResponseEntity<Resource> servePdf(@RequestBody MagazineRequest request) throws Exception {
 
 		logger.info(" - ");
 
-		Path pdfPath = magazineService.getPdfPath(request);
-
-		Resource resource = new FileSystemResource(pdfPath.toFile());
-
-		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + request.getEditionName() + ".pdf\"").contentType(MediaType.APPLICATION_PDF).body(resource);
-
+		/*
+		 * Path pdfPath = magazineService.getPdfPath(request);
+		 * 
+		 * Resource resource = new FileSystemResource(pdfPath.toFile());
+		 * 
+		 * return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
+		 * "inline; filename=\"" + request.getEditionName() +
+		 * ".pdf\"").contentType(MediaType.APPLICATION_PDF).body(resource);
+		 */
+		
+		return null;
 	}
 
-	@PostMapping("/magazine/edition/epub")
+	@PostMapping("/edition/epub")
 	public ResponseEntity<Resource> serveEpub(@RequestBody MagazineRequest request) throws Exception {
 
 		logger.info(" - ");
-
-		Path epubPath = magazineService.getEpubPath(request);
-
-		Resource resource = new FileSystemResource(epubPath.toFile());
-
-		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + request.getEditionName() + ".epub\"").contentType(MediaType.parseMediaType("application/epub+zip")).body(resource);
-
+		/*
+		 * Path epubPath = magazineService.getEpubPath(request);
+		 * 
+		 * Resource resource = new FileSystemResource(epubPath.toFile());
+		 * 
+		 * return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
+		 * "inline; filename=\"" + request.getEditionName() +
+		 * ".epub\"").contentType(MediaType.parseMediaType("application/epub+zip")).body
+		 * (resource);
+		 */
+		return null;
+		
 	}
 
-	@PostMapping("/magazine/edition/jpg")
+	@PostMapping("/edition/jpg")
 	public ResponseEntity<Resource> serveJpg(@RequestBody MagazineRequest request) throws Exception {
 
 		logger.info(" - ");
 
-		Path jpgPath = magazineService.getJpgPath(request);
-
-		Resource resource = new FileSystemResource(jpgPath.toFile());
-
-		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"").contentType(MediaType.IMAGE_JPEG).body(resource);
-
+		/*
+		 * Path jpgPath = magazineService.getJpgPath(request);
+		 * 
+		 * Resource resource = new FileSystemResource(jpgPath.toFile());
+		 * 
+		 * return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
+		 * "inline; filename=\"" + resource.getFilename() +
+		 * "\"").contentType(MediaType.IMAGE_JPEG).body(resource);
+		 */
+		
+		return null;
 	}
 
 }

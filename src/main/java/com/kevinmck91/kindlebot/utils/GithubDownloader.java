@@ -62,16 +62,16 @@ public class GithubDownloader {
 		return response;
 	}
 
-	public GithubItem[] getIndividualEdition(String endpoint) throws IOException {
+	public GithubItem[] fetchData(String endpoint) throws IOException {
 
 		GithubItem[] response;
 
-		logger.info("GithubDownloader.getIndividualEdition() - Endpoint =  [" + endpoint + "]");
+		logger.info("GithubDownloader.fetchData() - Endpoint =  [" + endpoint + "]");
 
 		ResponseEntity<GithubItem[]> responseEntity = restTemplate.getForEntity(endpoint, GithubItem[].class);
 		response = responseEntity.getBody();
 
-		logger.info("GithubDownloader.getIndividualEdition() - Success calling endpoint");
+		logger.info("GithubDownloader.fetchData() - Success calling endpoint");
 
 		return response;
 

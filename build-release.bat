@@ -9,7 +9,7 @@ REM Clean and package
 call mvn clean package
 
 REM Copy JAR to release
-copy target\kindlebot-%VERSION%.jar release\kindlebot.jar
+copy target\kindlebot-%VERSION%.jar release\kindlebot-%VERSION%.jar
 
 REM Create versioned ZIP
 cd release

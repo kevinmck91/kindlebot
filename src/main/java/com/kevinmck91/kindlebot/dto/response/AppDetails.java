@@ -6,13 +6,15 @@ public class AppDetails {
 	private String name;
 	private String rootUrl;
 	private String icon;
+	private boolean isAvailable;
 
-	public AppDetails(int id, String name, String rootUrl, String icon) {
+	public AppDetails(int id, String name, String rootUrl, String icon, Boolean isAvailable) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.rootUrl = rootUrl;
 		this.icon = icon;
+		this.isAvailable = isAvailable;
 	}
 
 	public int getId() {
@@ -45,6 +47,14 @@ public class AppDetails {
 
 	public void setIcon(String icon) {
 		this.icon = icon;
+	}
+
+	public boolean isAvailable() {
+		return isAvailable;
+	}
+
+	public void setAvailable(boolean isAvailable) {
+		this.isAvailable = isAvailable;
 	}
 
 }

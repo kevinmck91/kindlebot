@@ -27,6 +27,12 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             transition: 0.2s;
         }
+        
+        .card.disabled {
+		    opacity: 0.4;
+		    pointer-events: none;
+		    cursor: not-allowed;
+		}
 
         .card:hover {
             transform: translateY(-4px);
@@ -50,14 +56,14 @@
 <div class="grid">
 
     <a th:each="app : ${apps}"
-       th:href="${app.rootUrl}"
-       class="card">
-
-        <div class="icon" th:text="${app.icon}"></div>
-
-        <div class="title" th:text="${app.name}"></div>
-
-    </a>
+	   th:href="${app.available} ? ${app.rootUrl} : null"
+	   th:classappend="${!app.available} ? ' disabled' : ''"
+	   class="card">
+	
+	    <div class="icon" th:text="${app.icon}"></div>
+	    <div class="title" th:text="${app.name}"></div>
+	
+	</a>
 
 </div>
 

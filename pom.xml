@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.kevinmck91.kindlebot</groupId>
 	<artifactId>kindlebot</artifactId>
-	<version>2.0.2</version>
+	<version>2.0.3</version>
 	<name>kindlebot</name>
 	<description>Spring Boot app to send latest GitHub ePub to Kindle</description>
 	<url/>

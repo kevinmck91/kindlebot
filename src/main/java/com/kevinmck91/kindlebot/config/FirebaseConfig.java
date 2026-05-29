@@ -17,58 +17,72 @@ import com.google.firebase.FirebaseOptions;
 @Configuration
 public class FirebaseConfig {
 
-    private static final Logger log = LoggerFactory.getLogger(FirebaseConfig.class);
+	private static final Logger log = LoggerFactory.getLogger(FirebaseConfig.class);
 
-    @Value("${spring.firebase.credentialsPath}")
-    private String credentialsPath;
-    
-    @Value("${spring.firebase.projectId}")
-    private String projectId;
-    
-    @Value("${spring.firebase.storageBucket}")
-    private String storageBucket;
-    
-    @Value("${spring.firebase.databaseUrl}")
-    private String databaseUrl;
+	@Value("${spring.firebase.credentialsPath}")
+	private String credentialsPath;
 
-    @Bean
-    FirebaseApp firebaseApp() throws IOException {
+	@Value("${spring.firebase.projectId}")
+	private String projectId;
 
-        log.info("🔥 Firebase initialization starting...");
-        log.info("📄 Raw credentials path from config: {}", credentialsPath);
+	@Value("${spring.firebase.storageBucket}")
+	private String storageBucket;
 
-        if (credentialsPath == null || credentialsPath.isBlank()) {
-            throw new IllegalStateException("spring.firebase.credentials is NOT set");
-        }
+	@Value("${spring.firebase.databaseUrl}")
+	private String databaseUrl;
 
-        File file = new File(credentialsPath);
+	private final FirebaseStatusService firebaseStatusService;
 
-        log.info("📍 Absolute path resolved to: {}", file.getAbsolutePath());
-        log.info("📁 File exists: {}", file.exists());
-        log.info("📁 File readable: {}", file.canRead());
+	public FirebaseConfig(FirebaseStatusService firebaseStatusService) {
+		this.firebaseStatusService = firebaseStatusService;
+	}
 
-        if (!file.exists()) {
-            throw new IllegalStateException(
-                    "Firebase credentials file not found at: " + file.getAbsolutePath()
-            );
-        }
+	@Bean
+	FirebaseApp firebaseApp() throws IOException {
 
-        FileInputStream serviceAccount =
-                new FileInputStream(file);
+		try {
+			log.info("🔥 Firebase initialization starting...");
+			log.info("📄 Raw credentials path from config: {}", credentialsPath);
 
-        FirebaseOptions options = FirebaseOptions.builder()
-                .setProjectId(projectId)
-                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                .setStorageBucket(storageBucket)
-                .setDatabaseUrl(databaseUrl)
-                .build();
+			if (credentialsPath == null || credentialsPath.isBlank()) {
+				throw new IllegalStateException("spring.firebase.credentials is NOT set");
+			}
 
-        if (FirebaseApp.getApps().isEmpty()) {
-            log.info("🚀 Initializing FirebaseApp...");
-            return FirebaseApp.initializeApp(options);
-        }
+			File file = new File(credentialsPath);
 
-        log.info("✅ FirebaseApp already initialized");
-        return FirebaseApp.getInstance();
-    }
+			log.info("📍 Absolute path resolved to: {}", file.getAbsolutePath());
+			log.info("📁 File exists: {}", file.exists());
+			log.info("📁 File readable: {}", file.canRead());
+
+			if (!file.exists()) {
+				throw new IllegalStateException("Firebase credentials file not found at: " + file.getAbsolutePath());
+			}
+
+			FileInputStream serviceAccount = new FileInputStream(file);
+
+			FirebaseOptions options = FirebaseOptions.builder().setProjectId(projectId).setCredentials(GoogleCredentials.fromStream(serviceAccount)).setStorageBucket(storageBucket).setDatabaseUrl(databaseUrl).build();
+
+			FirebaseApp app;
+
+			if (FirebaseApp.getApps().isEmpty()) {
+				app = FirebaseApp.initializeApp(options);
+			} else {
+				app = FirebaseApp.getInstance();
+			}
+
+			firebaseStatusService.setAvailable(true);
+
+			log.info("✅ Firebase initialized successfully");
+
+			return app;
+
+		} catch (Exception e) {
+
+			firebaseStatusService.setAvailable(false);
+
+			log.error("❌ Firebase failed to initialize", e);
+
+			return null;
+		}
+	}
 }

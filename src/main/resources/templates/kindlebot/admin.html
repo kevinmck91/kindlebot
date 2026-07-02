@@ -43,8 +43,8 @@ a {
 	<button id="" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#manualUploadModal">Manual Upload Highlight</button>
 	<button id="" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#fileUploadModal">Upload clipping.txt File</button>
 	<button id="" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#jsonImportModal">Import All from JSON</button>
-	<button onclick="window.location.href='/web/admin/exportJson'" type="button" class="btn btn-primary">Export All to JSON</button>
-	<button onclick="window.location.href='/web/admin'" type="button" class="btn btn-primary">Reload Page</button>
+	<button onclick="window.location.href='/kindlebot/admin/exportJson'" type="button" class="btn btn-primary">Export All to JSON</button>
+	<button onclick="window.location.href='/kindlebot/admin'" type="button" class="btn btn-primary">Reload Page</button>
 	
 	<br/>
 	<br/>
@@ -87,7 +87,16 @@ a {
 							th:data-visibility="${h.visibility}"
 							th:attr="data-highlight-tags-string=${#strings.defaultString(h.highlightTagsString,'')}"/> 
 					</td>
-					<td th:text="${h.timestampHash}"></td>
+					<td>
+						<a 
+							class="toggleExcerpt" 
+							href="#" 
+							style="text-decoration: none; color: inherit;"
+							th:data-excerpt="${h.excerpt}" 
+							th:data-visibility="${h.visibility}">
+							<span th:text="${h.timestampHash + '⬇️'}"></span>
+						</a>
+					</td>
 					<td>
 						<a 
 							id="openUpdateExcerptModal"
@@ -101,14 +110,6 @@ a {
 							data-bs-toggle="modal" 
 							data-bs-target="#updateExcerptModal">
 							<span th:title="${h.excerpt}">&nbsp;&nbsp;📝</span>
-						</a>
-						<a 
-							class="toggleExcerpt" 
-							href="#" 
-							style="text-decoration: none; color: inherit;"
-							th:data-excerpt="${h.excerpt}" 
-							th:data-visibility="${h.visibility}">
-							<span th:title="${h.excerpt}">⬇️</span>
 						</a>
 					</td>
 					<td>
@@ -235,7 +236,7 @@ a {
 						</table>
 					</div>
 					
-					<form class="singleUpdateForm" th:action="@{/web/admin/updateExcerpt}" method="post" autocomplete="off">
+					<form class="singleUpdateForm" th:action="@{/kindlebot/admin/updateExcerpt}" method="post" autocomplete="off">
 						<div class="mb-3">
 							<label for="newTitle" class="form-label"><b>New Excerpt</b></label> 
 							<textarea id="newExcerpt" class="form-control" name="newString" required style="overflow:hidden;"></textarea>
@@ -275,7 +276,7 @@ a {
 							</tbody>
 						</table>
 					</div>
-					<form class="bulkUpdateForm" th:action="@{/web/admin/updateTitle}" method="post" autocomplete="off">
+					<form class="bulkUpdateForm" th:action="@{/kindlebot/admin/updateTitle}" method="post" autocomplete="off">
 						<div class="mb-3">
 							<label for="newTitle" class="form-label"><b>New Title</b></label> 
 							<input type="text"  class="form-control" name="newString" required>
@@ -316,7 +317,7 @@ a {
 							</tbody>
 						</table>
 					</div>
-					<form class="bulkUpdateForm" th:action="@{/web/admin/updateAuthor}" method="post" autocomplete="off">
+					<form class="bulkUpdateForm" th:action="@{/kindlebot/admin/updateAuthor}" method="post" autocomplete="off">
 						<div class="mb-3">
 							<label for="newTitle" class="form-label"><b>New Author</b></label> 
 							<input type="text"  class="form-control" name="newString" required>
@@ -357,7 +358,7 @@ a {
 							</tbody>
 						</table>
 					</div>
-					<form class="bulkUpdateForm" th:action="@{/web/admin/updateSource}" method="post" autocomplete="off">
+					<form class="bulkUpdateForm" th:action="@{/kindlebot/admin/updateSource}" method="post" autocomplete="off">
 						<div class="mb-3">
 							<label for="newTitle" class="form-label"><b>New Source</b></label> 
 							<input type="text"  class="form-control" name="newString" required>
@@ -398,7 +399,7 @@ a {
 							</tbody>
 						</table>
 					</div>
-					<form class="bulkUpdateForm" th:action="@{/web/admin/addTag}" method="post" autocomplete="off">
+					<form class="bulkUpdateForm" th:action="@{/kindlebot/admin/addTag}" method="post" autocomplete="off">
 						<div class="mb-3">
 							<label for="newTitle" class="form-label"><b>New Tags (Comma-Seperated)</b></label> 
 							<input type="text"  class="form-control" name="newString" required>
@@ -439,7 +440,7 @@ a {
 							</tbody>
 						</table>
 					</div>
-					<form class="bulkUpdateForm" th:action="@{/web/admin/removeTag}" method="post" autocomplete="off">
+					<form class="bulkUpdateForm" th:action="@{/kindlebot/admin/removeTag}" method="post" autocomplete="off">
 						<div class="mb-3">
 							<label for="newTitle" class="form-label"><b>Remove Tags (Comma-Seperated)</b></label> 
 							<input type="text"  class="form-control" name="newString" required>
@@ -480,7 +481,7 @@ a {
 							</tbody>
 						</table>
 					</div>
-					<form class="bulkUpdateForm" th:action="@{/web/admin/updateVisibility}" method="post" autocomplete="off">
+					<form class="bulkUpdateForm" th:action="@{/kindlebot/admin/updateVisibility}" method="post" autocomplete="off">
 						<div class="mb-3">
 							<label for="newTitle" class="form-label"><b>New Visibility</b></label> 
 							<select class="form-control" name="newString" required>
@@ -508,7 +509,7 @@ a {
 				</div>
 				<div class="modal-body">
 					
-					<form class="" th:action="@{/web/admin/manualUpload}" method="post" autocomplete="off">
+					<form class="" th:action="@{/kindlebot/admin/manualUpload}" method="post" autocomplete="off">
 						
 						<div class="mb-3">
 							<label for="newTitle" class="form-label"><b>Title</b><span class="text-danger">*</span></label> 
@@ -567,7 +568,7 @@ a {
 					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body">
-					<form th:action="@{/web/admin/fileUpload}" 
+					<form th:action="@{/kindlebot/admin/fileUpload}" 
                       	method="post" 
                       	enctype="multipart/form-data">
 	                    <div class="mb-3">
@@ -596,7 +597,7 @@ a {
 				</div>
 				<div class="modal-body">
 				
-					<form method="post" action="/web/admin/importJson" enctype="multipart/form-data">
+					<form method="post" action="/kindlebot/admin/importJson" enctype="multipart/form-data">
 					    
 					     <div class="mb-3">
 	                        <label class="form-label"><b>Choose file</b></label>

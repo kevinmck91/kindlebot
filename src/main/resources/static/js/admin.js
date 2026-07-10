@@ -55,6 +55,7 @@ $(document).ready(function() {
 	setupEditButtonHandler('a.editSourceButton', 'updateSourceModal', '#updateSourceTable', 'source');
 	setupEditButtonHandler('a.addTagButton', 'addTagModal', '#addTagTable', 'highlightTagsString');
 	setupEditButtonHandler('a.removeTagButton', 'removeTagModal', '#removeTagTable', 'highlightTagsString');
+	setupEditButtonHandler('a.deleteHighlightButton', 'deleteHighlightModal', '#deleteHighlightTable', 'title');
 	setupEditButtonHandler('a.editVisibilityButton', 'updateVisibilityModal', '#updateVisibilityTable', 'visibility');
 
 	// =========================
@@ -206,9 +207,19 @@ $(document).ready(function() {
 		populateModalTable("#removeTagTable", "highlightTagsString");
 	});
 
+	document.getElementById("openUpdateTitleModal").addEventListener("click", function() {
+		console.log('📝 Opening Update Title modal with', selectedHighlights.size, 'row(s)');
+		populateModalTable("#updateTitleTable", "title");
+	});
+	
 	document.getElementById("openVisibilityModal").addEventListener("click", function() {
-		console.log('👁️  Opening Update Visibility modal with', selectedHighlights.size, 'row(s)');
-		populateModalTable("#updateVisibilityTable", "visibility");
+		console.log('👁️  Opening Update Visibility Table modal with', selectedHighlights.size, 'row(s)');
+		populateModalTable("#updateVisibilityTable", "title");
+	});
+	
+	document.getElementById("openDeleteHighlightModal").addEventListener("click", function() {
+		console.log('👁️  Opening Delete Highlight Table modal with', selectedHighlights.size, 'row(s)');
+		populateModalTable("#deleteHighlightTable", "title");
 	});
 
 
@@ -353,10 +364,19 @@ $(document).ready(function() {
 				const modalInstance = bootstrap.Modal.getOrCreateInstance(modalElement);
 				modalInstance.hide();
 
-				// Fetch fresh data from API and update only the changed rows in the table
+			// Check if this is a delete operation
+			const isDelete = actionUrl.includes('/admin/deleteHighlight');
+
+			if (isDelete) {
+				// For delete operations, remove rows directly from the table
+				console.log('🗑️  Deleting', updatedIds.length, 'row(s) from table');
+				deleteTableRows(updatedIds);
+			} else {
+				// For update operations, fetch fresh data from API and update rows
 				// This is more efficient than reloading the entire table
 				console.log('🔄 Fetching updated data for', updatedIds.length, 'row(s)...');
 				updateTableRows(updatedIds);
+			}
 
 				// Show success message (optional)
 				console.log("Update successful:", data);
@@ -494,6 +514,43 @@ $(document).ready(function() {
 	}
 
 	/**
+	 * Delete rows from the table after a successful delete operation
+	 * Removes rows by ID without trying to fetch them from the API
+	 * @param {Array<string>} timestampHashes - Array of IDs that were deleted
+	 */
+	function deleteTableRows(timestampHashes) {
+		if (timestampHashes.length === 0) {
+			console.log('⏭️  No rows to delete');
+			return;
+		}
+
+		console.log('🗑️  deleteTableRows() - Removing', timestampHashes.length, 'row(s) from table');
+
+		// Find and remove rows from the table
+		let deletedCount = 0;
+		table.rows().every(function() {
+			const rowNode = this.node();
+			const checkbox = rowNode.querySelector('input[name="selectedHighlights"]');
+			
+			if (checkbox && timestampHashes.includes(checkbox.value)) {
+				// Found a row to delete - remove it from the DataTable
+				console.log('❌ Removing row ID:', checkbox.value);
+				table.row(this).remove();
+				deletedCount++;
+			}
+		});
+
+		// Redraw the table to reflect the deleted rows
+		table.draw();
+		console.log('✅ Removed ' + deletedCount + ' row(s) from table');
+
+		// Clear the selection since delete is complete
+		selectedHighlights.clear();
+		updateSelectionCount();
+		deselectAllHighlights();
+	}
+
+	/**
 	 * Find a row by ID and update its content with fresh data
 	 * Only updates rows that are currently visible in the table
 	 * @param {Object} highlight - The updated highlight object from the API
@@ -575,9 +632,9 @@ $(document).ready(function() {
 			</a>
 			<span>${escapeHtml(highlight.highlightTagsString || '')}</span>
 		`);
-
+		
 		// Update Visibility
-		const visibilityCells = row.find('td').eq(7);
+		const visibilityCells = row.find('td').eq(8);
 		const visibilityClass = highlight.visibility === 'shown' ? 'text-success' : 'text-danger';
 		visibilityCells.html(`
 			<a class="editVisibilityButton" href="#">

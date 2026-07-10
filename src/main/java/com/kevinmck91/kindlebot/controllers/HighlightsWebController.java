@@ -225,4 +225,24 @@ public class HighlightsWebController {
 
 		return "redirect:/web/admin";
 	}
+	
+	@PostMapping("/admin/deleteHighlight")
+	public ResponseEntity<String> deleteHighlight(@RequestBody BulkUpdateStringRequest updateRequest) {
+
+		logger.info("[Post] - [/web/admin/deleteHighlight] - [deleteHighlight]");
+
+		if (updateRequest.getNewString().equalsIgnoreCase("delete")) {
+			
+			highlightService.bulkDeleteHighlight(updateRequest);
+
+			return ResponseEntity.ok("Highlight deleted successfully");
+		}
+		else {
+		
+			//highlightService.bulkUpdateAuthor(updateRequest);
+
+			return ResponseEntity.ok("Highlight not deleted - validation failed");
+
+		}
+			}
 }
